@@ -61,7 +61,8 @@ async function createTables() {
         );
         CREATE TABLE post_tags (
             "postId" INTEGER REFERENCES posts(id),
-            "tagId" INTEGER REFERENCES tags(id)
+            "tagId" INTEGER REFERENCES tags(id),
+            UNIQUE ("postId", "tagId")
         );
         `);
 
@@ -143,7 +144,7 @@ async function createInitialTags() {
     try {
         console.log("Starting to create tags...");
 
-        const [happy, sad, inspo, catman] = await createInitialTags([
+        const [happy, sad, inspo, catman] = await createTags([
             "#happy",
             "#worst-day-ever",
             "#youcandoanything",
@@ -152,9 +153,10 @@ async function createInitialTags() {
 
         const [postOne, postTwo, postThree] = await getAllPosts();
 
+        console.log("Starting to add tags to post")
         await addTagsToPost(postOne.id, [happy, inspo]);
-        await addTagsToPost(postTwo.id [sad, inspo]);
-        await addTagsToPost(postThree.id [happy, catman, inspo]);
+        await addTagsToPost(postTwo.id, [sad, inspo]);
+        await addTagsToPost(postThree.id, [happy, catman, inspo]);
 
         console.log("Finished Creating Tags!");
 
@@ -193,18 +195,18 @@ async function testDB() {
         
         console.log("Calling getAllUsers");
         const users = await getAllUsers();
-        console.log("getAllUsers:", users);
+        // console.log("getAllUsers:", users);
 
         console.log("Calling updateUser on users[0]");
         const updateUserResult = await updateUser(users[0].id, {
             name: "Newname Sogood",
             location: "Lesterville, KY"
         });
-        console.log("Result:", updateUserResult)
+        // console.log("Result:", updateUserResult)
 
         console.log("Calling getAllposts");
         const posts = await getAllPosts();
-        console.log("Result", posts);
+        // console.log("Result", posts);
 
         console.log("Calling updatePost on posts[0]");
         const updatePostResult = await updatePost(posts[0].id, {
@@ -214,13 +216,13 @@ async function testDB() {
         console.log("Result:", updatePostResult);
 
         const albert = await getUserById(1);
-        console.log("Result:", albert);
+        // console.log("Result:", albert);
 
         console.log("Calling updatePost on posts[1], only updating tags");
         const updatePostTagsResult = await updatePost(posts[1].id, {
             tags: ["#youcandoanything", "redfish", "#bluefish"]
         });
-        console.log("Result:", updatePostTagsResult);
+        // console.log("Result:", updatePostTagsResult);
 
         console.log("Calling getPostsByTagName with #happy");
         const postsWithHappy = await getPostsByTagName("#happy")
