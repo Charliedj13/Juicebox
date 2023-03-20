@@ -1,11 +1,25 @@
 const pg = require("pg");
 
+//Creating a connection to the database
 const client = new pg.Client("postgres://localhost:5432/Juicebox")
 
 
 
 async function createUser({ username, password, name, location }) {
     try {
+        //User is value of the rows key value,
+        //
+        //Line 13 function is the same as line 23 function
+//         const response  = await client.query(`
+//         INSERT INTO users(username, password, name, location)
+//         VALUES ($1, $2, $3, $4)
+//         ON CONFLICT (username) DO NOTHING
+//         RETURNING *;
+// `, [username, password, name, location])
+//         const userArray = response.rows
+//     //
+//     return userArray[0];
+
 const { rows: [ user ] } = await client.query(`
         INSERT INTO users(username, password, name, location)
         VALUES ($1, $2, $3, $4)
@@ -13,6 +27,7 @@ const { rows: [ user ] } = await client.query(`
         RETURNING *;
 `, [username, password, name, location])
 
+    
     return user;
     } catch (error) {
         console.log(error)
@@ -51,6 +66,9 @@ const { rows: [ user ] } = await client.query(`
 //         }
 // }
 
+//Fields represents different values of a user
+//{} in parameter is defualt parameter (if fields = nothing it is just an empty object)
+
 async function updateUser(id, fields = {}) {
     // build the set string
     const setString = Object.keys(fields).map(
@@ -69,6 +87,7 @@ async function updateUser(id, fields = {}) {
         WHERE id=${ id }
         RETURNING *;
       `, Object.values(fields));
+      //Object is creating an array with the fields values
   
       return user;
     } catch (error) {
@@ -325,6 +344,12 @@ async function getPostById(postId) {
         `, [postId]);
         // console.log("This is", post)
         // console.log("This is postId", postId)
+        if (!post) {
+            throw {
+                name: "PostNotFoundError",
+                message: "Could not find a post with that postId"
+            };
+        }
 
         const { rows: tags } = await client.query(`
         SELECT tags.*
@@ -369,6 +394,32 @@ async function getPostsByTagName(tagName) {
         console.log(error)
     }
 }
+async function getAllTags() {
+    try {
+      const { rows } = await client.query(`
+        SELECT * 
+        FROM tags;
+      `);
+  
+      return rows
+    } catch (error) {
+      throw error;
+    }
+  }
+async function getUserByUsername(username) {
+    try {
+        const { rows: [user] } = await client.query(`
+        SELECT *
+        FROM users 
+        WHERE username=$1;
+        `, [username])
+
+        return user;
+
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 
 
@@ -387,6 +438,8 @@ module.exports = {
     createPostTag,
     addTagsToPost,
     getPostById,
-    getPostsByTagName
+    getPostsByTagName,
+    getAllTags,
+    getUserByUsername
 }
 

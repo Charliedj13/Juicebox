@@ -1,3 +1,5 @@
+//
+
 const { 
     client,
     createUser,
@@ -13,7 +15,8 @@ const {
     createPostTag,
     addTagsToPost,
     getPostById,
-    getPostsByTagName
+    getPostsByTagName,
+    getAllTags
 } = require("./index");
 
 async function dropTables() {
@@ -168,18 +171,21 @@ async function createInitialTags() {
 
 
 async function buildDB() {
+    // Creating initial database
     try {
         client.connect()
 
         
-
+    // Have to delete database before recreating it
         await dropTables();
+    // Creating the tables
         await createTables();
+    // Creating the initial data
         await createInitialUsers();
         await createInitialPosts();
         await createInitialTags();
         
-        const result = await client.query(`Select * FROM users;`)
+        // const result = await client.query(`Select * FROM users;`)
 
         
         
@@ -190,6 +196,7 @@ async function buildDB() {
 }
 
 async function testDB() {
+    // Testing all databse functions
     try {
         console.log("Starting to test database...");
         
